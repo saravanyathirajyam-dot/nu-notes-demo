@@ -203,6 +203,9 @@
       appendTextBlocks(content, response.slice(lastIndex, fence.index));
       if (appendMoleculeDiagram(content, fence[2])) {
         message.classList.add('ai-message-has-visual');
+      } else if (/molecule|structure/i.test(fence[1]) || looksLikeMoleculeJson(fence[2])) {
+        appendMoleculeFallback(content, fence[2]);
+        message.classList.add('ai-message-has-visual');
       } else {
         const code = document.createElement('pre');
         code.className = 'ai-answer-code';
@@ -226,6 +229,10 @@
 
   function appendTextBlocks(content, text) {
     if (appendMoleculeDiagram(content, text)) return;
+    if (looksLikeMoleculeJson(text)) {
+      appendMoleculeFallback(content);
+      return;
+    }
     const blocks = text.trim().split(/\n{2,}/).filter(Boolean);
     blocks.forEach((block) => {
       const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
@@ -251,49 +258,117 @@
   }
 
   function appendMoleculeDiagram(content, source) {
-    let structure;
     const text = String(source).trim();
-    try {
-      structure = JSON.parse(text);
-    } catch {
-      const firstBrace = text.indexOf('{');
-      const lastBrace = text.lastIndexOf('}');
-      if (firstBrace < 0 || lastBrace <= firstBrace) return false;
-      try { structure = JSON.parse(text.slice(firstBrace, lastBrace + 1)); } catch { return false; }
+    const candidates = [];
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) candidates.push(text.slice(firstBrace, lastBrace + 1));
+    candidates.push(text);
+    let parsed;
+    for (const candidate of candidates) {
+      try { parsed = JSON.parse(candidate); break; } catch {
+        try { parsed = JSON.parse(candidate.replace(/,\s*([}\]])/g, '$1')); break; } catch { /* Try the next JSON shape. */ }
+      }
     }
-    if (!structure || !Array.isArray(structure.atoms) || !Array.isArray(structure.bonds)
-      || structure.atoms.length < 1 || structure.atoms.length > 60 || structure.bonds.length > 100) return false;
-
+    if (!parsed || typeof parsed !== 'object') return false;
+    const structure = parsed.molecule || parsed.structure || parsed.data || parsed;
     const allowedElements = new Set(['H', 'C', 'N', 'O', 'S', 'P', 'F', 'Cl', 'Br', 'I', 'B', 'Si', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn']);
+    const elementNames = { hydrogen: 'H', carbon: 'C', nitrogen: 'N', oxygen: 'O', sulfur: 'S', phosphorus: 'P', fluorine: 'F', chlorine: 'Cl', bromine: 'Br', iodine: 'I', silicon: 'Si', sodium: 'Na', potassium: 'K', calcium: 'Ca', magnesium: 'Mg', iron: 'Fe', copper: 'Cu', zinc: 'Zn' };
+    const normalizeElement = (value) => {
+      const raw = String(value || '').trim();
+      if (elementNames[raw.toLowerCase()]) return elementNames[raw.toLowerCase()];
+      const match = raw.match(/^(Cl|Br|Si|Na|Mg|Ca|Fe|Cu|Zn|[A-Z][a-z]?)(?:\d|$)/);
+      return match && allowedElements.has(match[1]) ? match[1] : null;
+    };
+    const rawAtoms = Array.isArray(structure.atoms)
+      ? structure.atoms
+      : structure.atoms && typeof structure.atoms === 'object'
+        ? Object.entries(structure.atoms).map(([id, atom]) => typeof atom === 'object' ? { id, ...atom } : { id, element: atom })
+        : null;
+    const rawBonds = Array.isArray(structure.bonds)
+      ? structure.bonds
+      : structure.bonds && typeof structure.bonds === 'object'
+        ? Object.values(structure.bonds)
+        : null;
+    if (!rawAtoms || rawAtoms.length < 1 || rawAtoms.length > 60 || (rawBonds && rawBonds.length > 100)) return false;
+
     const atoms = [];
     const atomById = new Map();
-    for (const item of structure.atoms) {
-      if (!item || typeof item.id !== 'string' || !item.id || atomById.has(item.id)
-        || !allowedElements.has(item.element) || !Number.isFinite(Number(item.x)) || !Number.isFinite(Number(item.y))) return false;
-      const atom = {
-        id: item.id,
-        element: item.element,
-        x: Math.max(12, Math.min(388, Number(item.x))),
-        y: Math.max(18, Math.min(242, Number(item.y))),
-      };
+    const elementCounts = new Map();
+    for (const [index, item] of rawAtoms.entries()) {
+      const sourceName = typeof item === 'string' ? item : item?.element ?? item?.symbol ?? item?.atom ?? item?.type ?? item?.label ?? item?.name ?? item?.id;
+      const element = normalizeElement(sourceName);
+      if (!element) return false;
+      const sourceId = typeof item === 'string' ? item : item?.id ?? item?.atomId ?? item?.label ?? item?.name ?? item?.symbol;
+      let id = String(sourceId || `${element}${(elementCounts.get(element) || 0) + 1}`).trim();
+      if (!id || atomById.has(id)) {
+        if (sourceId) return false;
+        id = `${element}${index + 1}`;
+        if (atomById.has(id)) return false;
+      }
+      elementCounts.set(element, (elementCounts.get(element) || 0) + 1);
+      const xValue = Number(item?.x ?? item?.position?.x);
+      const yValue = Number(item?.y ?? item?.position?.y);
+      const atom = { id, element, rawX: xValue, rawY: yValue, x: 0, y: 0 };
       atoms.push(atom);
-      atomById.set(atom.id, atom);
+      atomById.set(id, atom);
+      atomById.set(id.toLowerCase(), atom);
     }
 
+    const resolveAtom = (value) => {
+      const key = value && typeof value === 'object' ? value.id ?? value.atomId ?? value.label ?? value.name : value;
+      if (key === undefined || key === null) return null;
+      return atomById.get(String(key)) || atomById.get(String(key).toLowerCase())
+        || (/^\d+$/.test(String(key)) ? atoms[Number(key)] : null);
+    };
+    const bondOrder = (value) => {
+      if (typeof value === 'string') {
+        const normalized = value.toLowerCase();
+        if (normalized.includes('triple')) return 3;
+        if (normalized.includes('double')) return 2;
+        const numeric = Number(normalized);
+        return [1, 2, 3].includes(numeric) ? numeric : 1;
+      }
+      return [1, 2, 3].includes(Number(value)) ? Number(value) : 1;
+    };
     const bonds = [];
-    for (const item of structure.bonds) {
-      const from = atomById.get(item?.from);
-      const to = atomById.get(item?.to);
-      const order = Number(item?.order || 1);
-      if (!from || !to || from === to || ![1, 2, 3].includes(order)) return false;
-      bonds.push({ from, to, order });
+    for (const item of rawBonds || []) {
+      const from = resolveAtom(item?.from ?? item?.a ?? item?.source ?? item?.atom1 ?? item?.start);
+      const to = resolveAtom(item?.to ?? item?.b ?? item?.target ?? item?.atom2 ?? item?.end);
+      if (!from || !to || from === to) continue;
+      bonds.push({ from, to, order: bondOrder(item?.order ?? item?.bondOrder ?? item?.type) });
     }
+
+    const coordinatesAreComplete = atoms.every((atom) => Number.isFinite(atom.rawX) && Number.isFinite(atom.rawY));
+    let useGeneratedLayout = !coordinatesAreComplete;
+    if (coordinatesAreComplete) {
+      const minX = Math.min(...atoms.map((atom) => atom.rawX));
+      const maxX = Math.max(...atoms.map((atom) => atom.rawX));
+      const minY = Math.min(...atoms.map((atom) => atom.rawY));
+      const maxY = Math.max(...atoms.map((atom) => atom.rawY));
+      if (atoms.length > 1 && Math.hypot(maxX - minX, maxY - minY) < 24) useGeneratedLayout = true;
+      const boxWidth = Math.max(1, maxX - minX);
+      const boxHeight = Math.max(1, maxY - minY);
+      atoms.forEach((atom) => {
+        atom.x = 30 + ((atom.rawX - minX) / boxWidth) * 340;
+        atom.y = 26 + ((atom.rawY - minY) / boxHeight) * 208;
+      });
+      for (let left = 0; left < atoms.length && !useGeneratedLayout; left += 1) {
+        for (let right = left + 1; right < atoms.length; right += 1) {
+          if (Math.hypot(atoms[left].x - atoms[right].x, atoms[left].y - atoms[right].y) < 25) {
+            useGeneratedLayout = true;
+            break;
+          }
+        }
+      }
+    }
+    if (useGeneratedLayout) layoutMolecule(atoms, bonds);
 
     const ns = 'http://www.w3.org/2000/svg';
     const figure = document.createElement('figure');
     figure.className = 'ai-molecule-card';
     const title = document.createElement('figcaption');
-    title.textContent = String(structure.title || 'Molecular structure').slice(0, 120);
+    title.textContent = String(structure.title || parsed.title || 'Molecular structure').slice(0, 120);
     const svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', '0 0 400 260');
     svg.setAttribute('width', '400');
@@ -339,6 +414,79 @@
     figure.append(title, svg);
     content.append(figure);
     return true;
+  }
+
+  function layoutMolecule(atoms, bonds) {
+    const count = atoms.length;
+    const centerX = 200;
+    const centerY = 130;
+    const radius = Math.min(135, Math.max(54, 18 * count));
+    const positions = atoms.map((_, index) => {
+      const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
+      return { x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius };
+    });
+    const atomIndex = new Map(atoms.map((atom, index) => [atom, index]));
+    for (let iteration = 0; iteration < 130; iteration += 1) {
+      const forces = positions.map(() => ({ x: 0, y: 0 }));
+      for (let left = 0; left < count; left += 1) {
+        for (let right = left + 1; right < count; right += 1) {
+          let dx = positions[left].x - positions[right].x;
+          let dy = positions[left].y - positions[right].y;
+          let distance = Math.hypot(dx, dy);
+          if (distance < 1) { dx = 1; dy = 0; distance = 1; }
+          const push = Math.min(2, 900 / (distance * distance));
+          const fx = (dx / distance) * push;
+          const fy = (dy / distance) * push;
+          forces[left].x += fx; forces[left].y += fy;
+          forces[right].x -= fx; forces[right].y -= fy;
+        }
+      }
+      bonds.forEach(({ from, to }) => {
+        const left = atomIndex.get(from);
+        const right = atomIndex.get(to);
+        const dx = positions[right].x - positions[left].x;
+        const dy = positions[right].y - positions[left].y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const pull = (distance - 62) * 0.035;
+        const fx = (dx / distance) * pull;
+        const fy = (dy / distance) * pull;
+        forces[left].x += fx; forces[left].y += fy;
+        forces[right].x -= fx; forces[right].y -= fy;
+      });
+      const step = 0.72 * (1 - iteration / 150);
+      positions.forEach((position, index) => {
+        forces[index].x += (centerX - position.x) * 0.003;
+        forces[index].y += (centerY - position.y) * 0.003;
+        position.x += Math.max(-5, Math.min(5, forces[index].x)) * step;
+        position.y += Math.max(-5, Math.min(5, forces[index].y)) * step;
+      });
+    }
+    const minX = Math.min(...positions.map((position) => position.x));
+    const maxX = Math.max(...positions.map((position) => position.x));
+    const minY = Math.min(...positions.map((position) => position.y));
+    const maxY = Math.max(...positions.map((position) => position.y));
+    const width = Math.max(1, maxX - minX);
+    const height = Math.max(1, maxY - minY);
+    atoms.forEach((atom, index) => {
+      atom.x = 30 + ((positions[index].x - minX) / width) * 340;
+      atom.y = 26 + ((positions[index].y - minY) / height) * 208;
+    });
+  }
+
+  function looksLikeMoleculeJson(source) {
+    const text = String(source);
+    return /"atoms"\s*:/.test(text) && /"bonds"\s*:/.test(text);
+  }
+
+  function appendMoleculeFallback(content) {
+    const fallback = document.createElement('div');
+    fallback.className = 'ai-molecule-card ai-molecule-fallback';
+    const title = document.createElement('strong');
+    title.textContent = 'Structure preview';
+    const message = document.createElement('p');
+    message.textContent = 'NU AI returned a structure, but it could not draw it this time. Ask “redraw this structure as a labeled diagram.”';
+    fallback.append(title, message);
+    content.append(fallback);
   }
 
   function saveAiConversation() {
