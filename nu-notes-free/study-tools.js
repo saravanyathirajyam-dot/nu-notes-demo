@@ -78,8 +78,9 @@
       return;
     }
     if (topic.key) {
-      document.querySelector(`.subject-tab[data-subject="${topic.key}"]`)?.click();
-      document.querySelector('#topic-open')?.click();
+      const matchingRow = rows.find((item) => item.dataset.topicKey === topic.key);
+      matchingRow?.querySelector('.download-button')?.click();
+      if (matchingRow) setActiveTopic(topicFromRow(matchingRow));
     }
   }
 
@@ -370,17 +371,6 @@
       return;
     }
 
-    if (target.closest('#topic-open')) {
-      window.setTimeout(() => {
-        const activeTab = document.querySelector('.subject-tab.is-active');
-        const key = activeTab?.dataset.subject || '';
-        const category = key ? key.charAt(0).toUpperCase() + key.slice(1) : 'General';
-        const title = document.querySelector('#topic-title')?.textContent.trim() || 'Study topic';
-        setActiveTopic({ id: topicId(category, title), title, category, key, summary: document.querySelector('#topic-summary')?.textContent.trim() || '' });
-      }, 0);
-      return;
-    }
-
     if (target.closest('#reader-save')) {
       toggleSaved(activeTopic);
       return;
@@ -468,7 +458,8 @@
     const addFollowUps = () => {
       if (!aiStatus.textContent.toLowerCase().includes('ready')) return;
       aiMessages.querySelectorAll('.ai-message-assistant:not([data-ai-intro])').forEach((message) => {
-        if (message.querySelector('.ai-follow-ups')) return;
+        if (message.dataset.followUpsAdded === 'true') return;
+        message.dataset.followUpsAdded = 'true';
         const group = document.createElement('div');
         group.className = 'ai-follow-ups';
         followUps.forEach(([label, prompt]) => {

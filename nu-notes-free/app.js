@@ -1,23 +1,11 @@
 (() => {
-  const checkinModal = document.querySelector('#checkin-modal');
-  const adminModal = document.querySelector('#admin-modal');
   const notePreviewModal = document.querySelector('#note-preview-modal');
-  const checkinForm = document.querySelector('#checkin-form');
   const noteSearch = document.querySelector('#note-search');
   const noteRows = [...document.querySelectorAll('.note-row')];
   const filterChips = [...document.querySelectorAll('.filter-chip')];
-  const toast = document.querySelector('#toast');
-  const adminTable = document.querySelector('#admin-table-body');
-  const topicPreview = document.querySelector('#topic-preview');
-  const topicTitle = document.querySelector('#topic-title');
-  const topicSummary = document.querySelector('#topic-summary');
-  const topicKicker = document.querySelector('#topic-kicker');
-  const topicConcept = document.querySelector('#topic-concept');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let activeCategory = 'All';
-  let activeSubject = 'chemistry';
-  let toastTimer;
   let lastFocusedElement;
   let aiConversation = [];
   const topicSamples = {
@@ -57,34 +45,20 @@
 
   function closeModal(modal) {
     modal.hidden = true;
-    if (checkinModal.hidden && adminModal.hidden && notePreviewModal.hidden) document.body.classList.remove('no-scroll');
+    if (notePreviewModal.hidden) document.body.classList.remove('no-scroll');
     if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') lastFocusedElement.focus();
   }
-
-  function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('is-visible');
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 3200);
-  }
-
-  document.querySelectorAll('#checkin-open, #checkin-open-secondary, #checkin-open-bottom').forEach((button) => {
-    button.addEventListener('click', () => openModal(checkinModal));
-  });
-  document.querySelector('#admin-open').addEventListener('click', () => openModal(adminModal));
 
   document.querySelectorAll('[data-close]').forEach((button) => {
     button.addEventListener('click', () => closeModal(button.closest('.modal-backdrop')));
   });
-  [checkinModal, adminModal, notePreviewModal].forEach((modal) => {
+  [notePreviewModal].forEach((modal) => {
     modal.addEventListener('click', (event) => {
       if (event.target === modal) closeModal(modal);
     });
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      if (!checkinModal.hidden) closeModal(checkinModal);
-      if (!adminModal.hidden) closeModal(adminModal);
       if (!notePreviewModal.hidden) closeModal(notePreviewModal);
     }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -138,24 +112,6 @@
     selectCategory('All');
   });
 
-  function showTopic(topic, key = '') {
-    topicKicker.innerHTML = `${escapeHtml(topic.subject)} <i>·</i> ${escapeHtml(topic.chapter)}`;
-    topicTitle.textContent = topic.title;
-    topicSummary.textContent = topic.summary;
-    topicConcept.textContent = topic.concept;
-    document.querySelectorAll('.subject-tab').forEach((tab) => {
-      const isActive = tab.dataset.subject === key;
-      tab.classList.toggle('is-active', isActive);
-      tab.setAttribute('aria-selected', String(isActive));
-    });
-    document.querySelectorAll('.topic-diagram').forEach((diagram) => {
-      diagram.hidden = diagram.dataset.topicDiagram !== key;
-    });
-    topicPreview.classList.remove('is-animating');
-    if (!reducedMotion) requestAnimationFrame(() => topicPreview.classList.add('is-animating'));
-    activeSubject = key;
-  }
-
   function showNoteReader(topic, key = '') {
     document.querySelector('#reader-unit').textContent = topic.chapter;
     document.querySelector('#reader-kicker').innerHTML = `${escapeHtml(topic.subject)} <i>·</i> ${escapeHtml(topic.chapter)}`;
@@ -184,13 +140,6 @@
     openModal(notePreviewModal);
   }
 
-  document.querySelectorAll('.subject-tab').forEach((tab) => tab.addEventListener('click', () => {
-    showTopic(topicSamples[tab.dataset.subject], tab.dataset.subject);
-  }));
-  document.querySelector('#topic-open').addEventListener('click', () => {
-    showNoteReader(topicSamples[activeSubject], activeSubject);
-  });
-
   document.querySelectorAll('.download-button').forEach((button) => button.addEventListener('click', () => {
     const row = button.closest('.note-row');
     const key = row.dataset.topicKey || '';
@@ -212,84 +161,6 @@
     })[character]);
   }
 
-  checkinForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = document.querySelector('#student-name').value.trim().replace(/\s+/g, ' ');
-    const usn = document.querySelector('#student-usn').value.trim().toUpperCase().replace(/\s+/g, '');
-    if (!name || !usn) return;
-    const submitButton = checkinForm.querySelector('[type="submit"]');
-    submitButton.disabled = true;
-    try {
-      const response = await fetch('/api/checkin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, usn }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'Check-in could not be saved.');
-      closeModal(checkinModal);
-      checkinForm.reset();
-      showToast('Check-in saved. You can continue to the notes.');
-    } catch (error) {
-      showToast(error.message || 'The check-in service is unavailable. Please try again later.');
-    } finally {
-      submitButton.disabled = false;
-    }
-  });
-
-  const adminForm = document.querySelector('#admin-form');
-  const adminResults = document.querySelector('#admin-results');
-  const adminStatus = document.querySelector('#admin-status');
-  adminForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const codeInput = document.querySelector('#admin-access-code');
-    const code = codeInput.value;
-    const submitButton = adminForm.querySelector('[type="submit"]');
-    adminResults.hidden = true;
-    adminStatus.textContent = 'Checking staff access…';
-    submitButton.disabled = true;
-    try {
-      const response = await fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${code}` } });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'Could not load the saved counts.');
-      renderAdminStats(result);
-      adminResults.hidden = false;
-      adminStatus.textContent = 'Saved check-ins loaded.';
-    } catch (error) {
-      adminStatus.textContent = error.message || 'Could not load the saved counts.';
-    } finally {
-      codeInput.value = '';
-      submitButton.disabled = false;
-    }
-  });
-
-  function renderAdminStats(stats) {
-    document.querySelector('#total-logins').textContent = String(stats.total_checkins ?? 0);
-    document.querySelector('#unique-students').textContent = String(stats.unique_students ?? 0);
-    adminTable.replaceChildren();
-    (Array.isArray(stats.students) ? stats.students : []).forEach((student) => {
-      const row = document.createElement('tr');
-      const nameCell = document.createElement('td');
-      const avatar = document.createElement('span');
-      const initials = String(student.name || 'Student').split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join('');
-      avatar.className = 'student-avatar';
-      avatar.textContent = initials || 'ST';
-      nameCell.append(avatar, document.createTextNode(` ${student.name || ''}`));
-      const usnCell = document.createElement('td');
-      usnCell.textContent = String(student.usn || '');
-      const countCell = document.createElement('td');
-      const count = document.createElement('span');
-      count.className = 'login-count';
-      count.textContent = String(student.login_count ?? 0);
-      countCell.append(count);
-      const seenCell = document.createElement('td');
-      const lastSeen = new Date(student.last_seen);
-      seenCell.textContent = Number.isNaN(lastSeen.getTime()) ? '—' : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(lastSeen);
-      row.append(nameCell, usnCell, countCell, seenCell);
-      adminTable.append(row);
-    });
-  }
-
   const aiForm = document.querySelector('#ai-form');
   const aiQuestion = document.querySelector('#ai-question');
   const aiMaterial = document.querySelector('#ai-material');
@@ -307,9 +178,31 @@
     const label = document.createElement('span');
     label.className = 'ai-message-label';
     label.textContent = role === 'assistant' ? 'NU AI' : 'YOU';
-    const paragraph = document.createElement('p');
-    paragraph.textContent = text;
-    message.append(label, paragraph);
+    const content = document.createElement('div');
+    content.className = 'ai-message-content';
+    const blocks = String(text).trim().split(/\n{2,}/).filter(Boolean);
+    blocks.forEach((block) => {
+      const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+      if (lines.length && lines.every((line) => /^[-*]\s+/.test(line))) {
+        const list = document.createElement('ul');
+        lines.forEach((line) => {
+          const item = document.createElement('li');
+          item.innerHTML = formatInline(line.replace(/^[-*]\s+/, ''));
+          list.append(item);
+        });
+        content.append(list);
+      } else if (lines.length === 1 && /^#{1,3}\s+/.test(lines[0])) {
+        const heading = document.createElement('strong');
+        heading.className = 'ai-answer-heading';
+        heading.innerHTML = formatInline(lines[0].replace(/^#{1,3}\s+/, ''));
+        content.append(heading);
+      } else {
+        const paragraph = document.createElement('p');
+        paragraph.innerHTML = lines.map(formatInline).join('<br>');
+        content.append(paragraph);
+      }
+    });
+    message.append(label, content);
     if (note) {
       const noteLabel = document.createElement('small');
       noteLabel.className = 'ai-message-note';
@@ -318,6 +211,13 @@
     }
     aiMessages.append(message);
     aiMessages.scrollTop = aiMessages.scrollHeight;
+    return message;
+  }
+
+  function formatInline(value) {
+    return escapeHtml(value)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
   aiForm.addEventListener('submit', async (event) => {
@@ -326,29 +226,37 @@
     const material = aiMaterial.value.trim();
     if (!question) return;
     const history = aiConversation.slice(-8);
-    aiConversation.push({ role: 'user', content: question });
-    addAiMessage('user', question, material ? 'Course material attached to this question' : 'General question');
-    aiQuestion.value = '';
-    aiCounter.textContent = '0 / 1600';
+    const pendingMessage = addAiMessage('user', question, material ? 'Course material attached to this question' : 'General question');
     aiSend.disabled = true;
     aiStatus.textContent = 'NU AI is preparing an explanation…';
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 45000);
     try {
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, material, messages: history }),
+        signal: controller.signal,
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'NU AI could not reply. Please try again.');
+      aiConversation.push({ role: 'user', content: question });
       aiConversation.push({ role: 'assistant', content: result.answer });
       addAiMessage('assistant', result.answer, material ? 'Based on the material you supplied and general knowledge' : 'General explanation · no college syllabus has been added yet');
+      aiQuestion.value = '';
+      aiCounter.textContent = '0 / 1600';
       aiMaterial.value = '';
       materialCounter.textContent = '0 / 6000';
       aiStatus.textContent = 'AI tutor ready';
     } catch (error) {
-      addAiMessage('assistant', error.message || 'NU AI is temporarily unavailable. Please try again shortly.');
-      aiStatus.textContent = 'AI tutor unavailable';
+      pendingMessage.remove();
+      const message = error.name === 'AbortError'
+        ? 'The tutor took too long to reply. Your question is still here; please try again.'
+        : error.message || 'The free AI tutor is temporarily unavailable. Please try again shortly.';
+      addAiMessage('assistant', message);
+      aiStatus.textContent = 'Tutor busy · try again';
     } finally {
+      window.clearTimeout(timeout);
       aiSend.disabled = false;
       aiQuestion.focus();
     }
@@ -359,6 +267,21 @@
       aiStatus.textContent = 'Backend not connected yet';
       return;
     }
-    aiStatus.textContent = status.aiReady ? 'AI tutor ready · general explanations' : 'AI setup in progress';
+    aiStatus.textContent = status.aiReady ? 'AI tutor ready · ask anything for study help' : 'AI tutor is not connected';
   }).catch(() => { aiStatus.textContent = 'Backend not connected yet'; });
+
+  if (!reducedMotion && 'IntersectionObserver' in window) {
+    const revealTargets = document.querySelectorAll('.study-card, .department-card, .note-row, .section-heading, .ai-copy, .ai-panel');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
+    revealTargets.forEach((element) => {
+      element.classList.add('scroll-reveal');
+      revealObserver.observe(element);
+    });
+  }
 })();

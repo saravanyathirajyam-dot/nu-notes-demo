@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#10192e" />
-    <meta name="description" content="NU Notes is a student notes demo for Nrupathunga University." />
-    <title>NU Notes — Demo</title>
+    <meta name="theme-color" content="#243746" />
+    <meta name="description" content="NU Notes brings study notes, department resources, and a free AI study tutor together for Nrupathunga University students." />
+    <title>NU Notes — Study, clearly</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
     <script src="study-tools.js" defer></script>
   </head>
   <body>
-    <div class="demo-ribbon"><span class="pulse-dot"></span> DEMO PREVIEW <span class="ribbon-divider">/</span> Sample departments and notes</div>
+    <div class="demo-ribbon"><span class="pulse-dot"></span> NU NOTES <span class="ribbon-divider">/</span> A calmer way to study together</div>
 
     <header class="site-header">
       <a class="brand" href="#top" aria-label="NU Notes home">
@@ -23,11 +23,8 @@
         <a href="#my-study">My study</a>
         <a href="#departments">Departments</a>
         <a href="#ai-tutor">AI tutor</a>
-        <button class="nav-link" id="admin-open" type="button">Admin preview</button>
       </nav>
-      <button class="button button-small button-dark" id="checkin-open" type="button">
-        <span class="button-icon">↗</span> Student check-in
-      </button>
+      <a class="button button-small button-dark header-cta" href="#library">Explore notes <span>↗</span></a>
       <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" type="button"><span></span><span></span></button>
     </header>
 
@@ -39,7 +36,6 @@
           <p class="hero-description">Class notes, organized by department and semester. Find the right material, focus on what matters, and make exam prep a little lighter.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#library">Explore the notes <span>↓</span></a>
-            <button class="text-button" id="checkin-open-secondary" type="button"><span class="play-icon">↗</span> Check in with USN</button>
           </div>
           <div class="hero-proof">
             <div class="avatar-stack" aria-hidden="true"><span>R</span><span>A</span><span>S</span><span>+</span></div>
@@ -49,55 +45,26 @@
           </div>
         </div>
 
-        <div class="hero-visual">
+        <div class="hero-visual hero-visual-learning" aria-label="An animated overview of the NU Notes study experience">
           <div class="visual-halo halo-one"></div><div class="visual-halo halo-two"></div>
-          <div class="study-window">
-            <div class="study-window-top">
-              <span class="window-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span>
-              <span class="window-brand"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY · TOPIC PREVIEW</small></span>
-              <span class="sample-pill">SAMPLE</span>
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="learning-board">
+            <div class="learning-board-top">
+              <span class="learning-brand-mark">NU</span>
+              <span class="learning-brand-copy"><strong>NU NOTES</strong><small>YOUR STUDY SPACE</small></span>
+              <span class="learning-open-mark" aria-hidden="true">↗</span>
             </div>
-            <div class="subject-tabs" role="tablist" aria-label="Choose a sample subject">
-              <button class="subject-tab is-active" type="button" role="tab" aria-selected="true" data-subject="chemistry"><span>Ch</span> Chemistry</button>
-              <button class="subject-tab" type="button" role="tab" aria-selected="false" data-subject="mathematics"><span>∑</span> Mathematics</button>
-              <button class="subject-tab" type="button" role="tab" aria-selected="false" data-subject="physics"><span>Φ</span> Physics</button>
+            <div class="learning-intro"><span>MADE FOR YOUR CAMPUS</span><h2>A clearer way<br />to study.</h2></div>
+            <div class="learning-steps" aria-label="Study flow">
+              <div class="learning-step"><span class="learning-step-number">01</span><div><small>UNDERSTAND</small><strong>Clear, focused concepts</strong></div><span class="learning-step-mark">✳</span></div>
+              <div class="learning-step"><span class="learning-step-number">02</span><div><small>WORK THROUGH</small><strong>Examples, one step at a time</strong></div><span class="learning-step-mark">↗</span></div>
+              <div class="learning-step"><span class="learning-step-number">03</span><div><small>COME BACK TO IT</small><strong>Review at your own pace</strong></div><span class="learning-step-mark">✓</span></div>
             </div>
-            <article class="topic-preview" id="topic-preview">
-              <div class="topic-heading">
-                <span class="topic-kicker" id="topic-kicker">CHEMISTRY <i>·</i> CHAPTER 03</span>
-                <h2 id="topic-title">Chemical Bonding</h2>
-                <p id="topic-summary">How atoms share or transfer electrons to form stable compounds.</p>
-              </div>
-              <div class="topic-diagram-wrap" id="topic-diagram-wrap">
-                <div class="topic-diagram" data-topic-diagram="chemistry">
-                  <svg viewBox="0 0 300 125" role="img" aria-label="Water molecule with two covalent bonds">
-                    <path class="bond-line" d="M105 69 143 59M157 59l38 10" />
-                    <circle class="atom atom-main" cx="150" cy="58" r="25" /><circle class="atom atom-side" cx="95" cy="72" r="16" /><circle class="atom atom-side" cx="205" cy="72" r="16" />
-                    <text class="atom-label atom-label-light" x="150" y="63" text-anchor="middle">O</text><text class="atom-label" x="95" y="76" text-anchor="middle">H</text><text class="atom-label" x="205" y="76" text-anchor="middle">H</text>
-                  </svg>
-                  <div class="diagram-caption"><strong>H₂O</strong><span>POLAR COVALENT BOND</span></div>
-                </div>
-                <div class="topic-diagram" data-topic-diagram="mathematics" hidden>
-                  <div class="equation-card"><span>INTEGRATION BY PARTS</span><strong>∫ u dv = uv − ∫ v du</strong><small>Choose <i>u</i> · differentiate · integrate</small></div>
-                  <svg viewBox="0 0 300 125" role="img" aria-label="A curve illustrating an integral">
-                    <path class="graph-axis" d="M48 95V24M48 95H258"/><path class="graph-curve" d="M55 83C92 81 96 63 126 66S166 84 187 58 222 35 250 30"/><circle class="graph-point" cx="187" cy="58" r="4"/>
-                    <text class="graph-label" x="253" y="111">x</text><text class="graph-label" x="34" y="28">y</text>
-                  </svg>
-                </div>
-                <div class="topic-diagram" data-topic-diagram="physics" hidden>
-                  <svg viewBox="0 0 300 125" role="img" aria-label="Two waves and an interference pattern">
-                    <path class="wave-axis" d="M35 62H265"/><path class="wave-path wave-one" d="M36 62C51 22 66 22 81 62S111 102 126 62 156 22 171 62 201 102 216 62 246 22 261 62"/><path class="wave-path wave-two" d="M36 62C51 22 66 22 81 62S111 102 126 62 156 22 171 62 201 102 216 62 246 22 261 62"/>
-                    <circle class="wave-dot" cx="171" cy="62" r="5"/><text class="graph-label" x="36" y="19">CREST</text><text class="graph-label" x="218" y="111">λ</text>
-                  </svg>
-                  <div class="diagram-caption"><strong>Δx = nλ</strong><span>CONSTRUCTIVE INTERFERENCE</span></div>
-                </div>
-              </div>
-              <div class="topic-bottom-row"><span><small>QUICK CONCEPT</small><strong id="topic-concept">Shared electron pairs create covalent bonds.</strong></span><button class="topic-open-button" id="topic-open" type="button">Open topic <span>↗</span></button></div>
-            </article>
-            <div class="study-window-footer"><span class="live-ring"></span> SAMPLE NOTES · SELECT A SUBJECT</div>
+            <div class="learning-board-footer"><span>READ · REVISE · RECALL</span><span class="learning-progress"><i></i></span><span>01 / 03</span></div>
           </div>
-          <div class="study-float float-top"><span>✦</span><div><strong>TOPIC-BASED NOTES</strong><small>Clear concepts, one page at a time</small></div></div>
-          <div class="study-float float-bottom"><span class="float-page">01</span><div><strong>READ · REVISE · RECALL</strong><small>A focused study flow</small></div></div>
+          <div class="learning-float learning-float-left"><span class="learning-float-icon">✦</span><span><strong>Find your notes</strong><small>Organized for your course</small></span></div>
+          <div class="learning-float learning-float-right"><span class="learning-float-icon learning-float-icon-blue">∑</span><span><strong>Ask NU AI</strong><small>Get a clear explanation</small></span></div>
+          <div class="learning-orbit-dot dot-one"></div><div class="learning-orbit-dot dot-two"></div>
         </div>
         <div class="hero-scroll"><span class="scroll-line"></span> SCROLL TO EXPLORE</div>
       </section>
@@ -209,19 +176,19 @@
           <div class="ai-copy">
             <div class="eyebrow"><span class="eyebrow-line"></span> STUDY SUPPORT · AI TUTOR</div>
             <h2>Stuck on a topic?<br /><span class="serif-accent">Ask NU AI.</span></h2>
-            <p>Ask for a clear explanation, a worked example, or a quick revision summary. Course-specific answers will be grounded in the notes and syllabus you share.</p>
-            <div class="ai-status" id="ai-status"><span class="status-dot"></span> AI setup in progress</div>
-            <p class="ai-privacy-note">Your question, recent chat turns, and any course text you paste are sent to Cloudflare Workers AI. Your name and USN are not included. Don’t include personal details.</p>
+            <p>Ask everyday study questions or work through a maths or physics problem. Paste a short passage whenever you want the tutor to focus on your notes.</p>
+            <div class="ai-status" id="ai-status"><span class="status-dot"></span> Connecting to the study tutor…</div>
+            <p class="ai-privacy-note">Your question, recent chat turns, and any course text you paste are sent to Cloudflare Workers AI to generate a reply. Don’t include personal details.</p>
           </div>
           <div class="ai-panel">
-            <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Clear, step-by-step explanations</small></div><span class="ai-panel-badge">AI</span></div>
+            <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Questions, concepts, and worked solutions</small></div><span class="ai-panel-badge">FREE AI</span></div>
             <div class="ai-messages" id="ai-messages" role="log" aria-live="polite" aria-relevant="additions">
-              <div class="ai-message ai-message-assistant" data-ai-intro="true"><span class="ai-message-label">NU AI</span><p>Hi! Ask me to explain a concept or work through a problem. Your college notes haven’t been added yet, so I can only give general explanations for now.</p></div>
+              <div class="ai-message ai-message-assistant" data-ai-intro="true"><span class="ai-message-label">NU AI</span><p>Hi! Ask a question or share a maths or physics problem. I’ll explain the steps clearly. Until college notes are added, my answers are general study help.</p></div>
             </div>
             <form class="ai-form" id="ai-form">
               <label for="ai-question">Your question</label>
-              <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Ask about a topic, formula, or problem…" required></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question">Ask <span>↗</span></button></div>
-              <div class="ai-form-foot"><span>Free AI daily limit · answers may need checking against your course material</span><span id="ai-character-count">0 / 1600</span></div>
+              <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Try: Solve 2x + 3 = 11 step by step…" required></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question">Ask <span>↗</span></button></div>
+              <div class="ai-form-foot"><span>Free AI · check course-specific details against your class notes</span><span id="ai-character-count">0 / 1600</span></div>
               <label class="ai-material-label" for="ai-material">Course notes or syllabus (optional)</label>
               <textarea class="ai-material" id="ai-material" name="material" rows="3" maxlength="6000" placeholder="Paste a short passage or question from your notes for a more focused explanation…"></textarea>
               <div class="ai-form-foot ai-material-foot"><span>Only the text you enter here is sent with your question.</span><span id="ai-material-count">0 / 6000</span></div>
@@ -234,48 +201,14 @@
         <div class="closing-orb"></div><div class="section-shell closing-inner">
           <div class="closing-star">✳</div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT STEP</div>
           <h2>One small step.<br /><span class="serif-accent">A lot more focus.</span></h2>
-          <p>Check in with your USN and get straight to the notes you need.</p>
-          <button class="button button-primary button-light" id="checkin-open-bottom" type="button">Student check-in <span>↗</span></button>
-          <div class="closing-footnote">A demo experience with placeholder content</div>
+          <p>Choose a topic, work through it at your own pace, and return whenever you need a refresher.</p>
+          <a class="button button-primary button-light" href="#library">Browse the notes <span>↗</span></a>
+          <div class="closing-footnote">Sample topics are shown while official college notes are being added.</div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark brand-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span><span class="brand-copy"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY</small></span></a><span class="footer-center">A student project by <a href="https://www.instagram.com/bannuugaadu.ae/?utm_source=ig_web_button_share_sheet&amp;dlrf=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">Bannugaadu · Nrupathunga University student ↗</a></span><span class="footer-right">DEMO PREVIEW <span>© 2026</span></span></footer>
-
-    <div class="modal-backdrop" id="checkin-modal" hidden>
-      <section class="modal-card checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
-        <button class="modal-close" data-close type="button" aria-label="Close">×</button>
-        <div class="modal-mark modal-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></div><div class="eyebrow"><span class="eyebrow-line"></span> STUDENT CHECK-IN</div>
-        <h2 id="checkin-title">Welcome to your<br /><span class="serif-accent">study space.</span></h2>
-        <p class="modal-copy">Enter your name and USN to record a study portal check-in.</p>
-        <form id="checkin-form">
-          <label for="student-name">Your name</label><input id="student-name" name="name" autocomplete="name" placeholder="e.g. Ananya Rao" required maxlength="80" />
-          <label for="student-usn">USN</label><input id="student-usn" name="usn" autocomplete="off" placeholder="e.g. 1AB23CS001" required maxlength="24" />
-          <label class="consent-label"><input id="checkin-consent" name="consent" type="checkbox" required /> <span>I agree to send my name and USN to Supabase, the NU Notes database, to count check-ins. This does not verify my identity.</span></label>
-          <button class="button button-primary form-submit" type="submit">Continue to notes <span>↗</span></button>
-        </form>
-        <p class="privacy-note"><span>ⓘ</span> Use your own details. Anyone can enter a USN, so this records check-ins rather than verified logins.</p>
-      </section>
-    </div>
-
-    <div class="modal-backdrop" id="admin-modal" hidden>
-      <section class="modal-card admin-card" role="dialog" aria-modal="true" aria-labelledby="admin-title">
-        <button class="modal-close" data-close type="button" aria-label="Close">×</button>
-        <div class="admin-header"><div><div class="eyebrow"><span class="eyebrow-line"></span> STAFF ACCESS</div><h2 id="admin-title">Student <span class="serif-accent">check-ins.</span></h2></div><span class="demo-badge">PRIVATE VIEW</span></div>
-        <p class="admin-description">Enter the private staff access code to view saved check-in counts. Students don’t need this code to use the notes.</p>
-        <form id="admin-form" class="admin-access-form">
-          <label for="admin-access-code">Staff access code</label>
-          <div class="admin-access-row"><input id="admin-access-code" type="password" autocomplete="current-password" maxlength="200" required placeholder="Enter staff code" /><button class="button button-dark" type="submit">Load counts <span>↗</span></button></div>
-        </form>
-        <p class="admin-status" id="admin-status" role="status">Counts are visible only after staff verification.</p>
-        <div id="admin-results" hidden>
-          <div class="admin-summary"><span class="summary-icon">↗</span><div><strong id="total-logins">0</strong><small>saved check-ins</small></div><div class="summary-side"><strong id="unique-students">0</strong><small>unique USNs</small></div></div>
-          <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>USN</th><th>CHECK-INS</th><th>LAST SEEN</th></tr></thead><tbody id="admin-table-body"></tbody></table></div>
-        </div>
-        <p class="admin-footnote">Check-ins are not identity-verified. Don’t share this staff access code. Only the name, USN, count, and latest check-in time are stored for this view.</p>
-      </section>
-    </div>
+    <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark brand-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span><span class="brand-copy"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY</small></span></a><span class="footer-center">A student project by <a href="https://www.instagram.com/bannuugaadu.ae/?utm_source=ig_web_button_share_sheet&amp;dlrf=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">Bannugaadu · Nrupathunga University student ↗</a></span><span class="footer-right">STUDENT STUDY PROJECT <span>© 2026</span></span></footer>
 
     <div class="modal-backdrop note-preview-backdrop" id="note-preview-modal" hidden>
       <section class="note-reader-card" role="dialog" aria-modal="true" aria-labelledby="reader-title">

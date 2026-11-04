@@ -1,20 +1,19 @@
-# NU Notes · free-stack build
+# NU Notes
 
-This folder contains the NU Notes site, Cloudflare Pages Functions, and the Supabase schema for real USN check-ins. It uses only free-plan services: Cloudflare Pages/Workers AI and Supabase Free. It does not use OpenAI API billing.
+NU Notes is a public study space for Nrupathunga University students. The live site has a notes library, department browsing, private on-device study tools, and a free AI tutor powered by Cloudflare Workers AI. It does not use OpenAI API billing.
 
 ## Features
 
-- Open check-in form for name and USN, with shared counts saved in Supabase.
-- Private staff view protected by a secret access code.
-- NU AI powered by Cloudflare Workers AI, with a shared limit of 100 questions per UTC day and Cloudflare's own free-neuron ceiling.
-- Questions, recent chat turns, and optional pasted course text go to Cloudflare Workers AI. Student names and USNs do not.
-- Daily exam countdown, short study plan, continue reading, saved topics, private subject progress, and opt-in spaced revision reminders stored in the current browser.
-- AI follow-up prompts for simpler explanations, worked examples, and short recaps. There are no practice-question features.
+- Browse sample study topics by subject and department. Official college notes can replace the clearly labelled sample material later.
+- Ask the tutor general study questions or request worked maths and physics solutions. Optional pasted course text is sent with the question to Cloudflare Workers AI.
+- Use an exam countdown, study plan, saved topics, progress, and revision reminders. This information stays in the student's browser.
+- No login, name, USN, or check-in is collected by the site.
+- A shared limit of 100 AI questions per UTC day protects the free AI allocation. Cloudflare may impose additional free-plan limits and availability constraints.
 
 ## Setup
 
-Follow [SETUP.md](SETUP.md). Keep Cloudflare on Workers Free and add the Supabase secret key and staff access code only through Cloudflare's encrypted secret settings. The AI uses a Cloudflare binding and does not need a provider API key.
+Follow [SETUP.md](SETUP.md). The backend uses encrypted Cloudflare settings for the Supabase AI usage counter and a Workers AI binding. Keep secret keys out of the website source, GitHub, and chat.
 
-## Limits and privacy
+## Privacy and capacity
 
-The USN field is not identity verification, and check-in counts can be inaccurate or abused. The staff view shows the 200 most active USNs while totals cover all saved rows. AI chat is held only in that browser tab; it is not saved in Supabase. Study progress is stored locally and not visible to staff. The free provider quotas can be exhausted; free tiers do not guarantee uptime or 1,000 simultaneous users.
+AI questions, recent chat turns, and any optional pasted course text are sent to Cloudflare Workers AI. AI conversations are held only in the current browser tab. Study tools use local browser storage. No student identity is submitted. Older versions could have created a Supabase check-in table; the current site no longer writes or displays those records, and does not delete existing database rows automatically. Free plans do not guarantee uptime or capacity for 1,000 simultaneous users.

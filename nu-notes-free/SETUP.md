@@ -1,60 +1,48 @@
-# Free NU Notes setup
+# NU Notes setup
 
-This build uses Cloudflare Pages and Workers AI on their free plan, plus the Supabase Free plan for check-in records. It does not use the OpenAI API and needs no paid AI key. Keep the Cloudflare account on Workers Free; do not upgrade it if you want to keep the site at ₹0.
+The site uses Cloudflare Pages and Workers AI plus a Supabase Free project for a shared daily AI usage counter. It does not use OpenAI API billing or collect student names or USNs. Keep Cloudflare on the Workers Free plan if you want to keep hosting at ₹0.
 
-## 1. Set up the database
+## 1. Set up the AI usage counter
 
-1. Create a Supabase Free project.
-2. In its SQL Editor, run the full `supabase/schema.sql` script once.
-3. In the project API settings, copy the project URL and create/copy a secret API key (`sb_secret_...`). Keep that key private; add it to Cloudflare only as an encrypted secret.
+1. In Supabase, create a Free project.
+2. In its SQL Editor, run `supabase/schema.sql` once.
+3. In the project API settings, copy the Project URL and create/copy a secret API key (`sb_secret_...`). Keep the key private and add it to Cloudflare only as an encrypted secret.
 
-The Free plan currently includes up to 500 MB of database storage per project and 50,000 monthly active users. Free projects with very little database activity can pause after a week; Supabase emails the owner and the project can be resumed from its dashboard. Recheck the provider's current limits before relying on them for exam week.
+The SQL creates only an anonymous daily request counter. It does not create or remove student check-in data. If an earlier version already created a student check-in table, it stays untouched; this version does not write to it or expose it through the site.
 
-## 2. Create the free hosted site
+## 2. Connect the hosted site
 
-1. Keep the Cloudflare account on the **Workers Free** plan.
-2. Create a Cloudflare Pages project from the GitHub repository containing this folder. Set the project root directory to `outputs/nu-notes-free`, or put the contents of this folder at the repository root.
-3. Choose no framework/build command and use `.` as the output directory.
-4. Cloudflare will publish the static site at a free `pages.dev` address. The existing GitHub Pages demo can remain as a separate preview.
+The Cloudflare Pages project should use the GitHub repository's `nu-notes-free` folder as its root. Choose no framework/build command and `.` as the output directory. Cloudflare publishes the site on its free `pages.dev` address and deploys new commits from the production branch.
 
-## 3. Add the Workers AI binding
+## 3. Connect Workers AI
 
-In the Pages project, open **Settings → Bindings → Add → Workers AI**. Set the variable name to `AI`, choose the Production environment, save, and redeploy. The code uses the free-available model `@cf/zai-org/glm-4.7-flash`; no AI API key is needed.
+In the Pages project, open **Settings → Bindings → Add → Workers AI**. Set the variable name to `AI`, choose the Production environment, save, and redeploy. The app uses `@cf/zai-org/glm-4.7-flash`; no separate AI provider key is needed. The tutor is configured to return direct student-facing explanations and worked steps instead of spending the response on hidden reasoning.
 
-The AI allowance is 10,000 Neurons per day on Workers Free, and Cloudflare stops further AI calls after that allowance is exhausted. NU Notes also sets a shared cap of 100 AI questions per UTC day. The Worker Free plan currently has a separate 100,000-request daily limit. These limits can change, and free quotas do not guarantee capacity or uptime.
+Cloudflare's free AI allowance and request limits can change or run out. The app also sets a shared cap of 100 AI questions per UTC day. Free tiers do not guarantee service for 1,000 simultaneous visitors.
 
-## 4. Add the remaining settings
+## 4. Add Cloudflare settings
 
-In **Settings → Variables and Secrets**, add these for Production. Mark secrets as encrypted. Never put them in the website source, GitHub, or this chat.
+In **Settings → Variables and Secrets**, add these for Production. Mark the Supabase key as encrypted. Never put it in website source, GitHub, or chat.
 
 | Name | Type | Value |
 |---|---|---|
 | `SUPABASE_URL` | Variable | Supabase project URL |
 | `SUPABASE_SECRET_KEY` | Secret | Supabase `sb_secret_...` key |
-| `ADMIN_TOKEN` | Secret | A long, random staff-only access code |
 | `AI_DAILY_LIMIT` | Variable | `100` |
 | `WORKERS_AI_MODEL` | Variable | `@cf/zai-org/glm-4.7-flash` |
 
-Redeploy after adding variables or bindings.
+Redeploy after changing bindings or settings. `ADMIN_TOKEN` is no longer used.
 
-## 5. Check that it is connected
+## 5. Check the connection
 
-- Visit `/api/status` on the new site. It should report `aiReady: true` and `checkinsReady: true` after configuration.
-- During setup, use invented names and USNs. Submit a check-in and check the Admin preview with the staff code.
-- Ask a general question. For course-specific explanations, paste a short passage into the optional course-material box.
+- Visit `/api/status`; it should report `aiReady: true` and `aiProvider: "Cloudflare Workers AI"`.
+- Ask the tutor a general study question or a simple maths/physics problem.
+- For a course-focused explanation, paste the relevant text into the optional course-material box.
 
-## What students' data does
+## Student data
 
-- Supabase stores the name, USN, check-in count, and first/last check-in times. It is a counter, not identity verification; a visitor can enter another student's USN or check in repeatedly.
-- Cloudflare Workers AI receives the question, recent chat turns from that browser tab, and any course text pasted for that question. The app does not send student names or USNs to the AI route. Do not paste private or sensitive information.
-- Study dates, saved topics, progress, daily-plan checkboxes, and revision reminders stay in each student's browser. Reminders appear inside NU Notes when the student returns; there are no push notifications.
-- Staff can see check-in counts, but not private study progress. The AI has not analyzed college notes or a full syllabus yet; those files have not been provided.
-- Supabase's Free plan is subject to inactivity pausing and usage limits. Cloudflare's free AI and Worker quotas can be exhausted during busy periods; the AI may stop until the next daily reset. Free tiers do not guarantee service for 1,000 simultaneous users, so do not advertise that capacity as guaranteed.
-
-## Official free-plan details
-
-- [Cloudflare Workers AI pricing and daily free allowance](https://developers.cloudflare.com/workers-ai/platform/pricing/)
-- [Cloudflare Workers Free request limits](https://developers.cloudflare.com/workers/platform/limits/)
-- [Cloudflare Pages Function bindings](https://developers.cloudflare.com/pages/functions/bindings/)
-- [Supabase Free plan limits](https://supabase.com/docs/guides/platform/billing-on-supabase)
-- [Supabase Free project pausing](https://supabase.com/docs/guides/platform/free-project-pausing)
+- No login, name, USN, or student check-in is collected by this site.
+- Cloudflare Workers AI receives each question, recent chat turns in the current tab, and any course text pasted with the question. Avoid entering personal or sensitive information.
+- Supabase stores only daily aggregate AI request counts for the shared cap. The website does not save student chat history there.
+- Exam dates, saved topics, progress, and revision reminders are stored in that student's browser and are not visible to staff.
+- Supabase or Cloudflare free limits can be reached during busy periods. Free plans do not guarantee 1,000 simultaneous users or uninterrupted service.
