@@ -41,14 +41,3 @@ export async function readJson(request) {
   }
 }
 
-export function isStaffRequest(request, env) {
-  const expected = env.ADMIN_TOKEN || '';
-  const received = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  if (!expected || !received) return false;
-  const left = new TextEncoder().encode(expected);
-  const right = new TextEncoder().encode(received);
-  if (left.length !== right.length) return false;
-  let difference = 0;
-  for (let i = 0; i < left.length; i += 1) difference |= left[i] ^ right[i];
-  return difference === 0;
-}
