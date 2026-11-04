@@ -437,7 +437,7 @@ button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:
             <h2>Stuck on a topic?<br /><span class="serif-accent">Ask NU AI.</span></h2>
             <p>Ask for a clear explanation, a worked example, or a quick revision summary. Course-specific answers will be grounded in the notes and syllabus you share.</p>
             <div class="ai-status" id="ai-status"><span class="status-dot"></span> AI connection pending in this preview</div>
-            <p class="ai-privacy-note">This public preview has no AI connection yet. When enabled, your question, recent chat turns, and pasted course text will be sent to OpenAI.</p>
+            <p class="ai-privacy-note">This public preview has no AI connection yet. When enabled, your question, recent chat turns, and pasted course text will be sent to Cloudflare Workers AI. Your name and USN will not be included.</p>
           </div>
           <div class="ai-panel">
             <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Clear, step-by-step explanations</small></div><span class="ai-panel-badge">AI</span></div>
@@ -447,7 +447,7 @@ button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:
             <form class="ai-form" id="ai-form">
               <label for="ai-question">Your question</label>
               <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Available after secure backend setup…" required disabled></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question" disabled>Ask <span>↗</span></button></div>
-              <div class="ai-form-foot"><span>AI tutor will activate after backend setup</span><span id="ai-character-count">0 / 1600</span></div>
+              <div class="ai-form-foot"><span>Free AI tutor will activate after backend setup</span><span id="ai-character-count">0 / 1600</span></div>
               <label class="ai-material-label" for="ai-material">Course notes or syllabus (optional)</label>
               <textarea class="ai-material" id="ai-material" name="material" rows="3" maxlength="6000" placeholder="Paste course material when the AI connection is ready…" disabled></textarea>
               <div class="ai-form-foot ai-material-foot"><span>Only the text you enter here is sent with your question.</span><span id="ai-material-count">0 / 6000</span></div>
