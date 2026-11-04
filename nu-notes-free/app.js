@@ -196,12 +196,12 @@
     const content = document.createElement('div');
     content.className = 'ai-message-content';
     const response = String(text).trim();
-    const fencePattern = /```([\w-]*)[^\S\n]*\n([\s\S]*?)```/g;
+    const fencePattern = /```([^\n]*)\n([\s\S]*?)```/g;
     let lastIndex = 0;
     let fence;
     while ((fence = fencePattern.exec(response))) {
       appendTextBlocks(content, response.slice(lastIndex, fence.index));
-      if (fence[1].toLowerCase() === 'molecule' && appendMoleculeDiagram(content, fence[2])) {
+      if (appendMoleculeDiagram(content, fence[2])) {
         message.classList.add('ai-message-has-visual');
       } else {
         const code = document.createElement('pre');
@@ -225,6 +225,7 @@
   }
 
   function appendTextBlocks(content, text) {
+    if (appendMoleculeDiagram(content, text)) return;
     const blocks = text.trim().split(/\n{2,}/).filter(Boolean);
     blocks.forEach((block) => {
       const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
@@ -251,7 +252,15 @@
 
   function appendMoleculeDiagram(content, source) {
     let structure;
-    try { structure = JSON.parse(source); } catch { return false; }
+    const text = String(source).trim();
+    try {
+      structure = JSON.parse(text);
+    } catch {
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace < 0 || lastBrace <= firstBrace) return false;
+      try { structure = JSON.parse(text.slice(firstBrace, lastBrace + 1)); } catch { return false; }
+    }
     if (!structure || !Array.isArray(structure.atoms) || !Array.isArray(structure.bonds)
       || structure.atoms.length < 1 || structure.atoms.length > 60 || structure.bonds.length > 100) return false;
 
