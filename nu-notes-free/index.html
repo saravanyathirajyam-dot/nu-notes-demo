@@ -176,18 +176,18 @@
           <div class="ai-copy">
             <div class="eyebrow"><span class="eyebrow-line"></span> STUDY SUPPORT · AI TUTOR</div>
             <h2>Stuck on a topic?<br /><span class="serif-accent">Ask NU AI.</span></h2>
-            <p>Ask everyday study questions or work through a maths or physics problem. Paste a short passage whenever you want the tutor to focus on your notes.</p>
+            <p>Ask everyday study questions or work through a maths, physics, or chemistry problem. NU AI keeps the recent chat on this device so follow-up questions can use the same context.</p>
             <div class="ai-status" id="ai-status"><span class="status-dot"></span> Connecting to the study tutor…</div>
-            <p class="ai-privacy-note">Your question, recent chat turns, and any course text you paste are sent to Cloudflare Workers AI to generate a reply. Don’t include personal details.</p>
+            <p class="ai-privacy-note">Your recent questions and replies are saved only in this browser so NU AI can remember the conversation. When you ask a question, recent chat turns and any course text you paste are sent to Cloudflare Workers AI. Clear chat removes the saved conversation; pasted notes are not saved. Don’t include personal details.</p>
           </div>
           <div class="ai-panel">
-            <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Questions, concepts, and worked solutions</small></div><span class="ai-panel-badge">FREE AI</span></div>
+            <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Questions, concepts, and worked solutions</small></div><button class="ai-clear-chat" id="ai-clear" type="button" hidden>Clear chat</button><span class="ai-panel-badge">FREE AI</span></div>
             <div class="ai-messages" id="ai-messages" role="log" aria-live="polite" aria-relevant="additions">
-              <div class="ai-message ai-message-assistant" data-ai-intro="true"><span class="ai-message-label">NU AI</span><p>Hi! Ask a question or share a maths or physics problem. I’ll explain the steps clearly. Until college notes are added, my answers are general study help.</p></div>
+              <div class="ai-message ai-message-assistant" data-ai-intro="true"><span class="ai-message-label">NU AI</span><p>Hi! Ask for a chemistry reaction, a maths or physics solution, or a clear concept explanation. Follow-up questions stay in this chat. Until college notes are added, my answers are general study help.</p></div>
             </div>
             <form class="ai-form" id="ai-form">
               <label for="ai-question">Your question</label>
-              <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Try: Solve 2x + 3 = 11 step by step…" required></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question">Ask <span>↗</span></button></div>
+              <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Try: Write and balance the reaction for HCl + NaOH…" required></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question">Ask <span>↗</span></button></div>
               <div class="ai-form-foot"><span>Free AI · check course-specific details against your class notes</span><span id="ai-character-count">0 / 1600</span></div>
               <label class="ai-material-label" for="ai-material">Course notes or syllabus (optional)</label>
               <textarea class="ai-material" id="ai-material" name="material" rows="3" maxlength="6000" placeholder="Paste a short passage or question from your notes for a more focused explanation…"></textarea>

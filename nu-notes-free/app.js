@@ -7,7 +7,21 @@
 
   let activeCategory = 'All';
   let lastFocusedElement;
-  let aiConversation = [];
+  const aiConversationStorageKey = 'nuNotes:aiConversation:v1';
+  function loadAiConversation() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(aiConversationStorageKey) || '[]');
+      if (!Array.isArray(saved)) return [];
+      return saved
+        .filter((message) => message && ['user', 'assistant'].includes(message.role) && typeof message.content === 'string')
+        .map((message) => ({ role: message.role, content: message.content.trim().slice(0, 6000) }))
+        .filter((message) => message.content)
+        .slice(-12);
+    } catch {
+      return [];
+    }
+  }
+  let aiConversation = loadAiConversation();
   const topicSamples = {
     chemistry: {
       subject: 'CHEMISTRY', chapter: 'CHAPTER 03', title: 'Chemical Bonding',
@@ -169,6 +183,7 @@
   const aiCounter = document.querySelector('#ai-character-count');
   const materialCounter = document.querySelector('#ai-material-count');
   const aiSend = aiForm.querySelector('[type="submit"]');
+  const aiClear = document.querySelector('#ai-clear');
   aiQuestion.addEventListener('input', () => { aiCounter.textContent = `${aiQuestion.value.length} / 1600`; });
   aiMaterial.addEventListener('input', () => { materialCounter.textContent = `${aiMaterial.value.length} / 6000`; });
 
@@ -180,7 +195,37 @@
     label.textContent = role === 'assistant' ? 'NU AI' : 'YOU';
     const content = document.createElement('div');
     content.className = 'ai-message-content';
-    const blocks = String(text).trim().split(/\n{2,}/).filter(Boolean);
+    const response = String(text).trim();
+    const fencePattern = /```([\w-]*)[^\S\n]*\n([\s\S]*?)```/g;
+    let lastIndex = 0;
+    let fence;
+    while ((fence = fencePattern.exec(response))) {
+      appendTextBlocks(content, response.slice(lastIndex, fence.index));
+      if (fence[1].toLowerCase() === 'molecule' && appendMoleculeDiagram(content, fence[2])) {
+        message.classList.add('ai-message-has-visual');
+      } else {
+        const code = document.createElement('pre');
+        code.className = 'ai-answer-code';
+        code.textContent = fence[2].replace(/\n$/, '');
+        content.append(code);
+      }
+      lastIndex = fencePattern.lastIndex;
+    }
+    appendTextBlocks(content, response.slice(lastIndex));
+    message.append(label, content);
+    if (note) {
+      const noteLabel = document.createElement('small');
+      noteLabel.className = 'ai-message-note';
+      noteLabel.textContent = note;
+      message.append(noteLabel);
+    }
+    aiMessages.append(message);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+    return message;
+  }
+
+  function appendTextBlocks(content, text) {
+    const blocks = text.trim().split(/\n{2,}/).filter(Boolean);
     blocks.forEach((block) => {
       const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
       if (lines.length && lines.every((line) => /^[-*]\s+/.test(line))) {
@@ -202,17 +247,124 @@
         content.append(paragraph);
       }
     });
-    message.append(label, content);
-    if (note) {
-      const noteLabel = document.createElement('small');
-      noteLabel.className = 'ai-message-note';
-      noteLabel.textContent = note;
-      message.append(noteLabel);
-    }
-    aiMessages.append(message);
-    aiMessages.scrollTop = aiMessages.scrollHeight;
-    return message;
   }
+
+  function appendMoleculeDiagram(content, source) {
+    let structure;
+    try { structure = JSON.parse(source); } catch { return false; }
+    if (!structure || !Array.isArray(structure.atoms) || !Array.isArray(structure.bonds)
+      || structure.atoms.length < 1 || structure.atoms.length > 60 || structure.bonds.length > 100) return false;
+
+    const allowedElements = new Set(['H', 'C', 'N', 'O', 'S', 'P', 'F', 'Cl', 'Br', 'I', 'B', 'Si', 'Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn']);
+    const atoms = [];
+    const atomById = new Map();
+    for (const item of structure.atoms) {
+      if (!item || typeof item.id !== 'string' || !item.id || atomById.has(item.id)
+        || !allowedElements.has(item.element) || !Number.isFinite(Number(item.x)) || !Number.isFinite(Number(item.y))) return false;
+      const atom = {
+        id: item.id,
+        element: item.element,
+        x: Math.max(12, Math.min(388, Number(item.x))),
+        y: Math.max(18, Math.min(242, Number(item.y))),
+      };
+      atoms.push(atom);
+      atomById.set(atom.id, atom);
+    }
+
+    const bonds = [];
+    for (const item of structure.bonds) {
+      const from = atomById.get(item?.from);
+      const to = atomById.get(item?.to);
+      const order = Number(item?.order || 1);
+      if (!from || !to || from === to || ![1, 2, 3].includes(order)) return false;
+      bonds.push({ from, to, order });
+    }
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const figure = document.createElement('figure');
+    figure.className = 'ai-molecule-card';
+    const title = document.createElement('figcaption');
+    title.textContent = String(structure.title || 'Molecular structure').slice(0, 120);
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 400 260');
+    svg.setAttribute('width', '400');
+    svg.setAttribute('height', '260');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', title.textContent);
+
+    bonds.forEach(({ from, to, order }) => {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const ux = dx / length;
+      const uy = dy / length;
+      const offsetX = -uy;
+      const offsetY = ux;
+      const parallelOffsets = order === 1 ? [0] : order === 2 ? [-3.5, 3.5] : [-6, 0, 6];
+      parallelOffsets.forEach((offset) => {
+        const atomGap = Math.min(14, length * 0.22);
+        const line = document.createElementNS(ns, 'line');
+        line.setAttribute('x1', String(from.x + ux * atomGap + offsetX * offset));
+        line.setAttribute('y1', String(from.y + uy * atomGap + offsetY * offset));
+        line.setAttribute('x2', String(to.x - ux * atomGap + offsetX * offset));
+        line.setAttribute('y2', String(to.y - uy * atomGap + offsetY * offset));
+        line.setAttribute('class', 'ai-molecule-bond');
+        svg.append(line);
+      });
+    });
+
+    atoms.forEach((atom) => {
+      const background = document.createElementNS(ns, 'circle');
+      background.setAttribute('cx', String(atom.x));
+      background.setAttribute('cy', String(atom.y));
+      background.setAttribute('r', '13');
+      background.setAttribute('class', 'ai-molecule-atom-bg');
+      const label = document.createElementNS(ns, 'text');
+      label.setAttribute('x', String(atom.x));
+      label.setAttribute('y', String(atom.y + 4));
+      label.setAttribute('class', `ai-molecule-atom ai-molecule-atom-${atom.element.toLowerCase()}`);
+      label.textContent = atom.element;
+      svg.append(background, label);
+    });
+
+    figure.append(title, svg);
+    content.append(figure);
+    return true;
+  }
+
+  function saveAiConversation() {
+    aiConversation = aiConversation.slice(-12);
+    try { localStorage.setItem(aiConversationStorageKey, JSON.stringify(aiConversation)); } catch { /* Keep chat usable when storage is unavailable. */ }
+    aiClear.hidden = aiConversation.length === 0;
+  }
+
+  function restoreAiConversation() {
+    if (!aiConversation.length) {
+      aiClear.hidden = true;
+      return;
+    }
+    aiMessages.replaceChildren();
+    aiConversation.forEach((message) => addAiMessage(
+      message.role,
+      message.content,
+      message.role === 'assistant' ? 'Saved in this browser' : 'Recent question',
+    ));
+    aiClear.hidden = false;
+  }
+
+  restoreAiConversation();
+  aiClear.addEventListener('click', () => {
+    aiConversation = [];
+    try { localStorage.removeItem(aiConversationStorageKey); } catch { /* Clearing the visible conversation still works. */ }
+    aiMessages.replaceChildren();
+    const intro = document.createElement('div');
+    intro.className = 'ai-message ai-message-assistant';
+    intro.dataset.aiIntro = 'true';
+    intro.innerHTML = '<span class="ai-message-label">NU AI</span><p>Hi! Ask for a chemistry reaction, a maths or physics solution, or a clear concept explanation. Follow-up questions stay in this chat. Until college notes are added, my answers are general study help.</p>';
+    aiMessages.append(intro);
+    aiClear.hidden = true;
+    aiStatus.textContent = 'Saved conversation cleared';
+  });
 
   function formatInline(value) {
     return escapeHtml(value)
@@ -228,6 +380,7 @@
     const history = aiConversation.slice(-8);
     const pendingMessage = addAiMessage('user', question, material ? 'Course material attached to this question' : 'General question');
     aiSend.disabled = true;
+    aiClear.disabled = true;
     aiStatus.textContent = 'NU AI is preparing an explanation…';
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 45000);
@@ -242,6 +395,7 @@
       if (!response.ok) throw new Error(result.error || 'NU AI could not reply. Please try again.');
       aiConversation.push({ role: 'user', content: question });
       aiConversation.push({ role: 'assistant', content: result.answer });
+      saveAiConversation();
       addAiMessage('assistant', result.answer, material ? 'Based on the material you supplied and general knowledge' : 'General explanation · no college syllabus has been added yet');
       aiQuestion.value = '';
       aiCounter.textContent = '0 / 1600';
@@ -258,6 +412,7 @@
     } finally {
       window.clearTimeout(timeout);
       aiSend.disabled = false;
+      aiClear.disabled = false;
       aiQuestion.focus();
     }
   });

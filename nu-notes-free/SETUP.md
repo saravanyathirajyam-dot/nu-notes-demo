@@ -36,13 +36,13 @@ Redeploy after changing bindings or settings. `ADMIN_TOKEN` is no longer used.
 ## 5. Check the connection
 
 - Visit `/api/status`; it should report `aiReady: true` and `aiProvider: "Cloudflare Workers AI"`.
-- Ask the tutor a general study question or a simple maths/physics problem.
+- Ask the tutor a general study question, chemistry reaction question, or simple maths/physics problem. Confirm that a short follow-up such as “show the structural formula” uses the previous reaction without asking the student to repeat it.
 - For a course-focused explanation, paste the relevant text into the optional course-material box.
 
 ## Student data
 
 - No login, name, USN, or student check-in is collected by this site.
-- Cloudflare Workers AI receives each question, recent chat turns in the current tab, and any course text pasted with the question. Avoid entering personal or sensitive information.
+- Cloudflare Workers AI receives each question, recent chat turns, and any course text pasted with the question. The last six exchanges are saved in local browser storage for follow-up context after a reload; **Clear chat** removes this history. Pasted course text is not saved in that history. Avoid entering personal or sensitive information.
 - Supabase stores only daily aggregate AI request counts for the shared cap. The website does not save student chat history there.
 - Exam dates, saved topics, progress, and revision reminders are stored in that student's browser and are not visible to staff.
 - Supabase or Cloudflare free limits can be reached during busy periods. Free plans do not guarantee 1,000 simultaneous users or uninterrupted service.
