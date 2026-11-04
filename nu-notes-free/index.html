@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10192e" />
+    <meta name="description" content="NU Notes is a student notes demo for Nrupathunga University." />
+    <title>NU Notes — Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+    <script src="study-tools.js" defer></script>
+  </head>
+  <body>
+    <div class="demo-ribbon"><span class="pulse-dot"></span> DEMO PREVIEW <span class="ribbon-divider">/</span> Sample departments and notes</div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="NU Notes home">
+        <span class="brand-mark brand-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span>
+        <span class="brand-copy"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#library">Notes library</a>
+        <a href="#my-study">My study</a>
+        <a href="#departments">Departments</a>
+        <a href="#ai-tutor">AI tutor</a>
+        <button class="nav-link" id="admin-open" type="button">Admin preview</button>
+      </nav>
+      <button class="button button-small button-dark" id="checkin-open" type="button">
+        <span class="button-icon">↗</span> Student check-in
+      </button>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" type="button"><span></span><span></span></button>
+    </header>
+
+    <main id="top">
+      <section class="hero section-shell">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> NU NOTES · NRUPATHUNGA UNIVERSITY</div>
+          <h1>Your notes,<br />all in one <span class="highlight-word">place.</span></h1>
+          <p class="hero-description">Class notes, organized by department and semester. Find the right material, focus on what matters, and make exam prep a little lighter.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#library">Explore the notes <span>↓</span></a>
+            <button class="text-button" id="checkin-open-secondary" type="button"><span class="play-icon">↗</span> Check in with USN</button>
+          </div>
+          <div class="hero-proof">
+            <div class="avatar-stack" aria-hidden="true"><span>R</span><span>A</span><span>S</span><span>+</span></div>
+            <div><strong>Made for your campus</strong><small>A calmer way to study together</small></div>
+            <div class="proof-divider"></div>
+            <div class="hero-stat"><strong>01</strong><small>easy place to start</small></div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-halo halo-one"></div><div class="visual-halo halo-two"></div>
+          <div class="study-window">
+            <div class="study-window-top">
+              <span class="window-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span>
+              <span class="window-brand"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY · TOPIC PREVIEW</small></span>
+              <span class="sample-pill">SAMPLE</span>
+            </div>
+            <div class="subject-tabs" role="tablist" aria-label="Choose a sample subject">
+              <button class="subject-tab is-active" type="button" role="tab" aria-selected="true" data-subject="chemistry"><span>Ch</span> Chemistry</button>
+              <button class="subject-tab" type="button" role="tab" aria-selected="false" data-subject="mathematics"><span>∑</span> Mathematics</button>
+              <button class="subject-tab" type="button" role="tab" aria-selected="false" data-subject="physics"><span>Φ</span> Physics</button>
+            </div>
+            <article class="topic-preview" id="topic-preview">
+              <div class="topic-heading">
+                <span class="topic-kicker" id="topic-kicker">CHEMISTRY <i>·</i> CHAPTER 03</span>
+                <h2 id="topic-title">Chemical Bonding</h2>
+                <p id="topic-summary">How atoms share or transfer electrons to form stable compounds.</p>
+              </div>
+              <div class="topic-diagram-wrap" id="topic-diagram-wrap">
+                <div class="topic-diagram" data-topic-diagram="chemistry">
+                  <svg viewBox="0 0 300 125" role="img" aria-label="Water molecule with two covalent bonds">
+                    <path class="bond-line" d="M105 69 143 59M157 59l38 10" />
+                    <circle class="atom atom-main" cx="150" cy="58" r="25" /><circle class="atom atom-side" cx="95" cy="72" r="16" /><circle class="atom atom-side" cx="205" cy="72" r="16" />
+                    <text class="atom-label atom-label-light" x="150" y="63" text-anchor="middle">O</text><text class="atom-label" x="95" y="76" text-anchor="middle">H</text><text class="atom-label" x="205" y="76" text-anchor="middle">H</text>
+                  </svg>
+                  <div class="diagram-caption"><strong>H₂O</strong><span>POLAR COVALENT BOND</span></div>
+                </div>
+                <div class="topic-diagram" data-topic-diagram="mathematics" hidden>
+                  <div class="equation-card"><span>INTEGRATION BY PARTS</span><strong>∫ u dv = uv − ∫ v du</strong><small>Choose <i>u</i> · differentiate · integrate</small></div>
+                  <svg viewBox="0 0 300 125" role="img" aria-label="A curve illustrating an integral">
+                    <path class="graph-axis" d="M48 95V24M48 95H258"/><path class="graph-curve" d="M55 83C92 81 96 63 126 66S166 84 187 58 222 35 250 30"/><circle class="graph-point" cx="187" cy="58" r="4"/>
+                    <text class="graph-label" x="253" y="111">x</text><text class="graph-label" x="34" y="28">y</text>
+                  </svg>
+                </div>
+                <div class="topic-diagram" data-topic-diagram="physics" hidden>
+                  <svg viewBox="0 0 300 125" role="img" aria-label="Two waves and an interference pattern">
+                    <path class="wave-axis" d="M35 62H265"/><path class="wave-path wave-one" d="M36 62C51 22 66 22 81 62S111 102 126 62 156 22 171 62 201 102 216 62 246 22 261 62"/><path class="wave-path wave-two" d="M36 62C51 22 66 22 81 62S111 102 126 62 156 22 171 62 201 102 216 62 246 22 261 62"/>
+                    <circle class="wave-dot" cx="171" cy="62" r="5"/><text class="graph-label" x="36" y="19">CREST</text><text class="graph-label" x="218" y="111">λ</text>
+                  </svg>
+                  <div class="diagram-caption"><strong>Δx = nλ</strong><span>CONSTRUCTIVE INTERFERENCE</span></div>
+                </div>
+              </div>
+              <div class="topic-bottom-row"><span><small>QUICK CONCEPT</small><strong id="topic-concept">Shared electron pairs create covalent bonds.</strong></span><button class="topic-open-button" id="topic-open" type="button">Open topic <span>↗</span></button></div>
+            </article>
+            <div class="study-window-footer"><span class="live-ring"></span> SAMPLE NOTES · SELECT A SUBJECT</div>
+          </div>
+          <div class="study-float float-top"><span>✦</span><div><strong>TOPIC-BASED NOTES</strong><small>Clear concepts, one page at a time</small></div></div>
+          <div class="study-float float-bottom"><span class="float-page">01</span><div><strong>READ · REVISE · RECALL</strong><small>A focused study flow</small></div></div>
+        </div>
+        <div class="hero-scroll"><span class="scroll-line"></span> SCROLL TO EXPLORE</div>
+      </section>
+
+      <section class="trust-strip" aria-label="Portal highlights">
+        <div class="trust-inner"><span>BUILT AROUND YOUR COURSE</span><i></i><span>QUICK TO FIND</span><i></i><span>READY WHEN YOU ARE</span><i></i><span>MADE FOR EXAM SEASON</span></div>
+      </section>
+
+      <section class="study-dashboard" id="my-study">
+        <div class="section-shell">
+          <div class="study-dashboard-heading">
+            <div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR STUDY SPACE</div><h2>A little structure.<br /><span class="serif-accent">More peace of mind.</span></h2></div>
+            <p>Your date, saved topics, and progress stay in this browser. No public rankings or pressure streaks.</p>
+          </div>
+          <div class="study-overview-grid">
+            <article class="study-card exam-card">
+              <span class="study-card-kicker">EXAM COUNTDOWN</span>
+              <h3 id="exam-countdown">Set a date when you know it.</h3>
+              <label for="exam-date">Next exam date</label>
+              <div class="exam-date-row"><input id="exam-date" type="date" /><button id="exam-date-clear" type="button" aria-label="Clear exam date">Clear</button></div>
+              <small>This date is saved only on this device.</small>
+            </article>
+            <article class="study-card daily-plan-card">
+              <span class="study-card-kicker">TODAY’S GENTLE PLAN</span>
+              <h3>A few focused minutes</h3>
+              <p>Short topic reading, a timely review, and help when you need it.</p>
+              <ul class="daily-plan-list" id="daily-plan-list"></ul>
+              <small>Suggestions use demo topics until college notes are added.</small>
+            </article>
+            <article class="study-card continue-card">
+              <span class="study-card-kicker">PICK UP WHERE YOU LEFT OFF</span>
+              <div class="continue-topic-mark">↗</div>
+              <h3 id="continue-title">Choose a topic to begin</h3>
+              <p id="continue-subtitle">Your last opened topic will appear here.</p>
+              <button class="button button-dark continue-button" id="continue-button" type="button">Open a topic <span>↗</span></button>
+            </article>
+          </div>
+          <div class="study-personal-grid">
+            <article class="study-card progress-card">
+              <div class="study-card-heading"><div><span class="study-card-kicker">YOUR PRIVATE PROGRESS</span><h3>Topics reviewed</h3></div><span class="local-only-pill">ON THIS DEVICE</span></div>
+              <div class="subject-progress-list" id="subject-progress-list"></div>
+              <small>Progress is based on topics you mark as reviewed.</small>
+            </article>
+            <article class="study-card saved-card">
+              <span class="study-card-kicker">SAVED FOR LATER</span><h3>Your saved topics</h3>
+              <div class="saved-topics-list" id="saved-topics-list"></div>
+            </article>
+            <article class="study-card revision-card">
+              <span class="study-card-kicker">SPACED REVISION</span><h3>Gentle reminders</h3>
+              <label class="reminder-optin"><input id="revision-optin" type="checkbox" /><span>Schedule reminders for topics I review</span></label>
+              <p class="reminder-explainer">Due topics appear here the next time you visit. Turning this off clears reminders saved on this device.</p>
+              <div class="revision-list" id="revision-list"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-shell departments-section" id="departments">
+        <div class="section-heading">
+          <div><div class="eyebrow eyebrow-light"><span class="eyebrow-line"></span> FIND YOUR DEPARTMENT</div><h2>A good place to <span class="serif-accent">begin.</span></h2></div>
+          <p>Browse by department, then narrow things down by semester and subject. Your notes stay easy to find.</p>
+        </div>
+        <div class="department-grid" id="department-grid">
+          <button class="department-card card-cs" data-filter="Computer Science" type="button"><span class="dept-number">01 / DEPARTMENT</span><span class="dept-icon icon-cs">{ }</span><strong>Computer<br />Science</strong><span class="dept-footer"><small>Algorithms · Networks · DBMS</small><b>↗</b></span></button>
+          <button class="department-card card-ece" data-filter="Electronics" type="button"><span class="dept-number">02 / DEPARTMENT</span><span class="dept-icon icon-ece">⌁</span><strong>Electronics &<br />Communication</strong><span class="dept-footer"><small>Circuits · Signals · VLSI</small><b>↗</b></span></button>
+          <button class="department-card card-mech" data-filter="Mechanical" type="button"><span class="dept-number">03 / DEPARTMENT</span><span class="dept-icon icon-mech">◉</span><strong>Mechanical<br />Engineering</strong><span class="dept-footer"><small>Thermodynamics · Design</small><b>↗</b></span></button>
+          <button class="department-card card-civil" data-filter="Civil" type="button"><span class="dept-number">04 / DEPARTMENT</span><span class="dept-icon icon-civil">⌂</span><strong>Civil<br />Engineering</strong><span class="dept-footer"><small>Structures · Surveying</small><b>↗</b></span></button>
+          <button class="department-card card-commerce" data-filter="Commerce" type="button"><span class="dept-number">05 / DEPARTMENT</span><span class="dept-icon icon-commerce">↗</span><strong>Commerce &<br />Management</strong><span class="dept-footer"><small>Accounting · Economics</small><b>↗</b></span></button>
+          <button class="department-card card-math" data-filter="Sciences" type="button"><span class="dept-number">06 / DEPARTMENT</span><span class="dept-icon icon-math">π</span><strong>Mathematics<br />& Sciences</strong><span class="dept-footer"><small>Calculus · Physics · Chemistry</small><b>↗</b></span></button>
+        </div>
+        <div class="departments-note"><span class="note-star">✳</span> Departments shown are placeholders. Your college’s actual departments can be added here.</div>
+      </section>
+
+      <section class="library-section" id="library">
+        <div class="section-shell library-shell">
+          <div class="library-top">
+            <div><div class="eyebrow"><span class="eyebrow-line"></span> THE NOTES LIBRARY</div><h2>Find what you <span class="serif-accent">need.</span></h2></div>
+            <div class="library-search"><span class="search-icon">⌕</span><input id="note-search" type="search" placeholder="Search a subject or note..." aria-label="Search notes" /><kbd>⌘ K</kbd></div>
+          </div>
+          <div class="filter-row" role="group" aria-label="Filter notes by department">
+            <button class="filter-chip is-active" data-category="All" type="button">All notes <span>08</span></button>
+            <button class="filter-chip" data-category="Sciences" type="button">Physical sciences</button>
+            <button class="filter-chip" data-category="Chemistry" type="button">Chemistry</button>
+            <button class="filter-chip" data-category="Physics" type="button">Physics</button>
+            <button class="filter-chip" data-category="Computer Science" type="button">Computer science</button>
+            <button class="filter-chip" data-category="Electronics" type="button">Electronics</button>
+            <button class="filter-chip" data-category="Mechanical" type="button">Mechanical</button>
+            <button class="filter-chip" data-category="Civil" type="button">Civil</button>
+            <button class="filter-chip" data-category="Commerce" type="button">Commerce</button>
+            <button class="filter-chip" data-category="Mathematics" type="button">Mathematics</button>
+          </div>
+          <div class="notes-list" id="notes-list">
+            <article class="note-row" data-category="Chemistry" data-topic-key="chemistry" data-search="chemistry chemical bonding ionic covalent chapter 3"><div class="file-type file-coral">PDF</div><div class="note-info"><span class="note-dept">CHEMISTRY <i>·</i> CHAPTER 03</span><h3>Chemical Bonding</h3><p>Ionic, covalent, and metallic bonds with a molecular example.</p></div><div class="note-meta"><span>Topic preview</span><small>8 pages</small></div><button class="download-button" type="button" data-note="Chemical Bonding" aria-label="Open Chemical Bonding topic preview">↗</button></article>
+            <article class="note-row" data-category="Mathematics" data-topic-key="mathematics" data-search="mathematics integration by parts calculus unit 2"><div class="file-type file-pink">PDF</div><div class="note-info"><span class="note-dept">MATHEMATICS <i>·</i> UNIT 02</span><h3>Integration by Parts</h3><p>A step-by-step method with a worked integral.</p></div><div class="note-meta"><span>Topic preview</span><small>6 pages</small></div><button class="download-button" type="button" data-note="Integration by Parts" aria-label="Open Integration by Parts topic preview">↗</button></article>
+            <article class="note-row" data-category="Physics" data-topic-key="physics" data-search="physics wave optics interference wavelength chapter 5"><div class="file-type file-blue">PDF</div><div class="note-info"><span class="note-dept">PHYSICS <i>·</i> CHAPTER 05</span><h3>Wave Optics: Interference</h3><p>Wave superposition, path difference, and fringe formation.</p></div><div class="note-meta"><span>Topic preview</span><small>9 pages</small></div><button class="download-button" type="button" data-note="Wave Optics: Interference" aria-label="Open Wave Optics topic preview">↗</button></article>
+            <article class="note-row" data-category="Computer Science" data-search="data structures algorithms computer science semester 4"><div class="file-type file-purple">PDF</div><div class="note-info"><span class="note-dept">COMPUTER SCIENCE <i>·</i> SEMESTER 04</span><h3>Data Structures & Algorithms</h3><p>Core concepts, step-by-step explanations, and revision notes.</p></div><div class="note-meta"><span>Updated recently</span><small>18 pages</small></div><button class="download-button" type="button" data-note="Data Structures & Algorithms" aria-label="Open Data Structures and Algorithms sample note">↗</button></article>
+            <article class="note-row" data-category="Electronics" data-search="digital electronics logic gates electronics semester 3"><div class="file-type file-coral">PDF</div><div class="note-info"><span class="note-dept">ELECTRONICS <i>·</i> SEMESTER 03</span><h3>Digital Electronics</h3><p>Logic gates, Boolean algebra, and combinational circuits.</p></div><div class="note-meta"><span>Study notes</span><small>24 pages</small></div><button class="download-button" type="button" data-note="Digital Electronics" aria-label="Open Digital Electronics sample note">↗</button></article>
+            <article class="note-row" data-category="Mechanical" data-search="thermodynamics mechanical engineering semester 5"><div class="file-type file-blue">PDF</div><div class="note-info"><span class="note-dept">MECHANICAL <i>·</i> SEMESTER 05</span><h3>Engineering Thermodynamics</h3><p>First and second laws, cycles, and key formulae.</p></div><div class="note-meta"><span>Exam revision</span><small>32 pages</small></div><button class="download-button" type="button" data-note="Engineering Thermodynamics" aria-label="Open Engineering Thermodynamics sample note">↗</button></article>
+            <article class="note-row" data-category="Civil" data-search="structural analysis civil engineering semester 4"><div class="file-type file-green">PDF</div><div class="note-info"><span class="note-dept">CIVIL ENGINEERING <i>·</i> SEMESTER 04</span><h3>Structural Analysis</h3><p>Methods, diagrams, and commonly used equations.</p></div><div class="note-meta"><span>Study notes</span><small>21 pages</small></div><button class="download-button" type="button" data-note="Structural Analysis" aria-label="Open Structural Analysis sample note">↗</button></article>
+            <article class="note-row" data-category="Commerce" data-search="financial accounting commerce semester 2"><div class="file-type file-yellow">PDF</div><div class="note-info"><span class="note-dept">COMMERCE <i>·</i> SEMESTER 02</span><h3>Financial Accounting</h3><p>Journal entries, ledgers, and worked examples.</p></div><div class="note-meta"><span>Quick reference</span><small>16 pages</small></div><button class="download-button" type="button" data-note="Financial Accounting" aria-label="Open Financial Accounting sample note">↗</button></article>
+          </div>
+          <div class="empty-state" id="empty-state" hidden><span>⌕</span><strong>No notes found</strong><p>Try another subject or clear your filters.</p><button type="button" id="clear-filters">Clear filters</button></div>
+          <div class="library-demo-note"><span>DEMO LIBRARY</span> Topic previews are illustrative samples. Your departments’ official notes and syllabus can replace them later.</div>
+        </div>
+      </section>
+
+      <section class="ai-section" id="ai-tutor">
+        <div class="section-shell ai-shell">
+          <div class="ai-copy">
+            <div class="eyebrow"><span class="eyebrow-line"></span> STUDY SUPPORT · AI TUTOR</div>
+            <h2>Stuck on a topic?<br /><span class="serif-accent">Ask NU AI.</span></h2>
+            <p>Ask for a clear explanation, a worked example, or a quick revision summary. Course-specific answers will be grounded in the notes and syllabus you share.</p>
+            <div class="ai-status" id="ai-status"><span class="status-dot"></span> AI setup in progress</div>
+            <p class="ai-privacy-note">Your question, recent chat turns, and any course text you paste are sent to Cloudflare Workers AI. Your name and USN are not included. Don’t include personal details.</p>
+          </div>
+          <div class="ai-panel">
+            <div class="ai-panel-top"><span class="ai-orb">✦</span><div><strong>NU NOTES · STUDY ASSISTANT</strong><small>Clear, step-by-step explanations</small></div><span class="ai-panel-badge">AI</span></div>
+            <div class="ai-messages" id="ai-messages" role="log" aria-live="polite" aria-relevant="additions">
+              <div class="ai-message ai-message-assistant" data-ai-intro="true"><span class="ai-message-label">NU AI</span><p>Hi! Ask me to explain a concept or work through a problem. Your college notes haven’t been added yet, so I can only give general explanations for now.</p></div>
+            </div>
+            <form class="ai-form" id="ai-form">
+              <label for="ai-question">Your question</label>
+              <div class="ai-composer"><textarea id="ai-question" name="question" rows="2" maxlength="1600" placeholder="Ask about a topic, formula, or problem…" required></textarea><button class="button button-primary ai-send" type="submit" aria-label="Send question">Ask <span>↗</span></button></div>
+              <div class="ai-form-foot"><span>Free AI daily limit · answers may need checking against your course material</span><span id="ai-character-count">0 / 1600</span></div>
+              <label class="ai-material-label" for="ai-material">Course notes or syllabus (optional)</label>
+              <textarea class="ai-material" id="ai-material" name="material" rows="3" maxlength="6000" placeholder="Paste a short passage or question from your notes for a more focused explanation…"></textarea>
+              <div class="ai-form-foot ai-material-foot"><span>Only the text you enter here is sent with your question.</span><span id="ai-material-count">0 / 6000</span></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="closing-section">
+        <div class="closing-orb"></div><div class="section-shell closing-inner">
+          <div class="closing-star">✳</div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR NEXT STEP</div>
+          <h2>One small step.<br /><span class="serif-accent">A lot more focus.</span></h2>
+          <p>Check in with your USN and get straight to the notes you need.</p>
+          <button class="button button-primary button-light" id="checkin-open-bottom" type="button">Student check-in <span>↗</span></button>
+          <div class="closing-footnote">A demo experience with placeholder content</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><a class="brand footer-brand" href="#top"><span class="brand-mark brand-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span><span class="brand-copy"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY</small></span></a><span class="footer-center">A student project by <a href="https://www.instagram.com/bannuugaadu.ae/?utm_source=ig_web_button_share_sheet&amp;dlrf=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer">Bannugaadu · Nrupathunga University student ↗</a></span><span class="footer-right">DEMO PREVIEW <span>© 2026</span></span></footer>
+
+    <div class="modal-backdrop" id="checkin-modal" hidden>
+      <section class="modal-card checkin-card" role="dialog" aria-modal="true" aria-labelledby="checkin-title">
+        <button class="modal-close" data-close type="button" aria-label="Close">×</button>
+        <div class="modal-mark modal-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></div><div class="eyebrow"><span class="eyebrow-line"></span> STUDENT CHECK-IN</div>
+        <h2 id="checkin-title">Welcome to your<br /><span class="serif-accent">study space.</span></h2>
+        <p class="modal-copy">Enter your name and USN to record a study portal check-in.</p>
+        <form id="checkin-form">
+          <label for="student-name">Your name</label><input id="student-name" name="name" autocomplete="name" placeholder="e.g. Ananya Rao" required maxlength="80" />
+          <label for="student-usn">USN</label><input id="student-usn" name="usn" autocomplete="off" placeholder="e.g. 1AB23CS001" required maxlength="24" />
+          <label class="consent-label"><input id="checkin-consent" name="consent" type="checkbox" required /> <span>I agree to send my name and USN to Supabase, the NU Notes database, to count check-ins. This does not verify my identity.</span></label>
+          <button class="button button-primary form-submit" type="submit">Continue to notes <span>↗</span></button>
+        </form>
+        <p class="privacy-note"><span>ⓘ</span> Use your own details. Anyone can enter a USN, so this records check-ins rather than verified logins.</p>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="admin-modal" hidden>
+      <section class="modal-card admin-card" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+        <button class="modal-close" data-close type="button" aria-label="Close">×</button>
+        <div class="admin-header"><div><div class="eyebrow"><span class="eyebrow-line"></span> STAFF ACCESS</div><h2 id="admin-title">Student <span class="serif-accent">check-ins.</span></h2></div><span class="demo-badge">PRIVATE VIEW</span></div>
+        <p class="admin-description">Enter the private staff access code to view saved check-in counts. Students don’t need this code to use the notes.</p>
+        <form id="admin-form" class="admin-access-form">
+          <label for="admin-access-code">Staff access code</label>
+          <div class="admin-access-row"><input id="admin-access-code" type="password" autocomplete="current-password" maxlength="200" required placeholder="Enter staff code" /><button class="button button-dark" type="submit">Load counts <span>↗</span></button></div>
+        </form>
+        <p class="admin-status" id="admin-status" role="status">Counts are visible only after staff verification.</p>
+        <div id="admin-results" hidden>
+          <div class="admin-summary"><span class="summary-icon">↗</span><div><strong id="total-logins">0</strong><small>saved check-ins</small></div><div class="summary-side"><strong id="unique-students">0</strong><small>unique USNs</small></div></div>
+          <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>USN</th><th>CHECK-INS</th><th>LAST SEEN</th></tr></thead><tbody id="admin-table-body"></tbody></table></div>
+        </div>
+        <p class="admin-footnote">Check-ins are not identity-verified. Don’t share this staff access code. Only the name, USN, count, and latest check-in time are stored for this view.</p>
+      </section>
+    </div>
+
+    <div class="modal-backdrop note-preview-backdrop" id="note-preview-modal" hidden>
+      <section class="note-reader-card" role="dialog" aria-modal="true" aria-labelledby="reader-title">
+        <button class="modal-close" data-close type="button" aria-label="Close topic preview">×</button>
+        <div class="reader-topbar">
+          <span class="reader-logo"><img src="assets/nrupatunga-logo.jpeg" alt="" /></span>
+          <span class="reader-brand"><strong>NU NOTES</strong><small>NRUPATHUNGA UNIVERSITY · TOPIC PREVIEW</small></span>
+          <span class="reader-sample-badge">DEMO CONTENT</span>
+        </div>
+        <div class="reader-progress"><span></span></div>
+        <div class="reader-layout">
+          <aside class="reader-sidebar">
+            <span class="reader-sidebar-kicker">IN THIS PREVIEW</span>
+            <strong id="reader-unit">CHAPTER 03</strong>
+            <div class="reader-outline-step is-current"><i>01</i><span>Core concept</span></div>
+            <div class="reader-outline-step"><i>02</i><span>Visual guide</span></div>
+            <div class="reader-outline-step"><i>03</i><span>Quick revision</span></div>
+            <div class="reader-sidebar-note">A sample topic view. Your actual department notes can replace this demo content.</div>
+          </aside>
+          <article class="reader-page">
+            <div class="reader-page-kicker" id="reader-kicker">CHEMISTRY <i>·</i> CHAPTER 03</div>
+            <h2 id="reader-title">Chemical Bonding</h2>
+            <p class="reader-intro" id="reader-intro">How atoms share or transfer electrons to form stable compounds.</p>
+            <div class="reader-diagram" id="reader-diagram"></div>
+            <div class="reader-core"><span>CORE IDEA</span><p id="reader-core-text">Shared electron pairs create covalent bonds.</p></div>
+            <div class="reader-revision"><span>QUICK REVISION</span><strong id="reader-revision-text">Identify the atoms, count valence electrons, then determine whether electrons are shared or transferred.</strong></div>
+            <div class="reader-actions"><button class="reader-action-button" id="reader-save" type="button" aria-pressed="false">☆ Save topic</button><button class="reader-action-button reader-reviewed-button" id="reader-reviewed" type="button">Mark as reviewed</button></div>
+            <div class="reader-page-footer"><span>NU NOTES · NRUPATHUNGA UNIVERSITY</span><span>TOPIC PREVIEW · 01</span></div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
