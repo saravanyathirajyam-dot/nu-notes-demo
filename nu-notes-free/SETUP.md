@@ -1,48 +1,24 @@
-# NU Notes setup
+# NU AI deployment notes
 
-The site uses Cloudflare Pages and Workers AI plus a Supabase Free project for a shared daily AI usage counter. It does not use OpenAI API billing or collect student names or USNs. Keep Cloudflare on the Workers Free plan if you want to keep hosting at ₹0.
+## Cloudflare Pages
 
-## 1. Set up the AI usage counter
+Connect the repository to the existing Pages project. Set its root/build output directory to `nu-notes-free`, leaving the build command empty for this static HTML site. The `functions` directory is inside that Pages root.
 
-1. In Supabase, create a Free project.
-2. In its SQL Editor, run `supabase/schema.sql` once.
-3. In the project API settings, copy the Project URL and create/copy a secret API key (`sb_secret_...`). Keep the key private and add it to Cloudflare only as an encrypted secret.
+Add the Workers AI binding named `AI`. Store `SUPABASE_URL` and the Supabase service-role key under the secret name `SUPABASE_SECRET_KEY`. Keep both secret values in the Cloudflare dashboard only.
 
-The SQL creates only an anonymous daily request counter. It does not create or remove student check-in data. If an earlier version already created a student check-in table, it stays untouched; this version does not write to it or expose it through the site.
+Optional model variables are `WORKERS_AI_MODEL`, `WORKERS_AI_VISION_MODEL`, and `WORKERS_AI_IMAGE_MODEL`. Defaults are GLM-4.7-Flash, Moondream 3.1, and FLUX.1 Schnell. The app allows at most 40 combined AI calls per UTC day through the existing `claim_ai_request` Supabase RPC.
 
-## 2. Connect the hosted site
+## Supabase
 
-The Cloudflare Pages project should use the GitHub repository's `nu-notes-free` folder as its root. Choose no framework/build command and `.` as the output directory. Cloudflare publishes the site on its free `pages.dev` address and deploys new commits from the production branch.
+This version uses the existing `ai_daily_usage` table and `claim_ai_request(integer)` RPC from `supabase/schema.sql`. No new table or migration is required. The function is called by the text, image-understanding, and image-creation endpoints through the same shared counter.
 
-## 3. Connect Workers AI
+## Capabilities and boundaries
 
-In the Pages project, open **Settings → Bindings → Add → Workers AI**. Set the variable name to `AI`, choose the Production environment, save, and redeploy. The app uses `@cf/zai-org/glm-4.7-flash`; no separate AI provider key is needed. The tutor is configured to return direct student-facing explanations and worked steps instead of spending the response on hidden reasoning.
+- `/api/status` reports whether Workers AI and Supabase are configured.
+- `/api/ask` accepts up to three compressed images and extracted text from up to four attachments.
+- `/api/image` creates a single illustration from a text prompt.
+- PDF text is extracted in the browser. When a PDF has no selectable text, the first two pages are rendered in the browser and sent as images.
+- Chat transcripts remain in the user's browser storage; uploads and generated images are not archived by the app.
+- The daily AI allowance is shared. When exhausted, the app gives a gentle reset message and does not request paid usage intentionally.
 
-Cloudflare's free AI allowance and request limits can change or run out. The app also sets a shared cap of 100 AI questions per UTC day. Free tiers do not guarantee service for 1,000 simultaneous visitors.
-
-## 4. Add Cloudflare settings
-
-In **Settings → Variables and Secrets**, add these for Production. Mark the Supabase key as encrypted. Never put it in website source, GitHub, or chat.
-
-| Name | Type | Value |
-|---|---|---|
-| `SUPABASE_URL` | Variable | Supabase project URL |
-| `SUPABASE_SECRET_KEY` | Secret | Supabase `sb_secret_...` key |
-| `AI_DAILY_LIMIT` | Variable | `100` |
-| `WORKERS_AI_MODEL` | Variable | `@cf/zai-org/glm-4.7-flash` |
-
-Redeploy after changing bindings or settings. `ADMIN_TOKEN` is no longer used.
-
-## 5. Check the connection
-
-- Visit `/api/status`; it should report `aiReady: true` and `aiProvider: "Cloudflare Workers AI"`.
-- Ask the tutor a general study question, chemistry reaction question, or simple maths/physics problem. Confirm that a short follow-up such as “show the structural formula” uses the previous reaction without asking the student to repeat it.
-- For a course-focused explanation, paste the relevant text into the optional course-material box.
-
-## Student data
-
-- No login, name, USN, or student check-in is collected by this site.
-- Cloudflare Workers AI receives each question, recent chat turns, and any course text pasted with the question. The last six exchanges are saved in local browser storage for follow-up context after a reload; **Clear chat** removes this history. Pasted course text is not saved in that history. Avoid entering personal or sensitive information.
-- Supabase stores only daily aggregate AI request counts for the shared cap. The website does not save student chat history there.
-- Exam dates, saved topics, progress, and revision reminders are stored in that student's browser and are not visible to staff.
-- Supabase or Cloudflare free limits can be reached during busy periods. Free plans do not guarantee 1,000 simultaneous users or uninterrupted service.
+Keep the account on Cloudflare Workers Free if the site must not incur AI usage charges. The free inference pool is account-wide and can be used by other Workers AI projects too.

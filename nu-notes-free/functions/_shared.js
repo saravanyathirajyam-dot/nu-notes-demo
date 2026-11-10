@@ -27,17 +27,16 @@ export async function supabaseRpc(env, functionName, payload) {
   return response.json();
 }
 
-export async function readJson(request) {
+export async function readJson(request, maxBytes = 9_000_000) {
   const contentType = request.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) return null;
   const length = Number(request.headers.get('content-length') || 0);
-  if (length > 30000) return null;
+  if (length > maxBytes) return null;
   try {
     const raw = await request.text();
-    if (new TextEncoder().encode(raw).length > 30000) return null;
+    if (new TextEncoder().encode(raw).length > maxBytes) return null;
     return JSON.parse(raw);
   } catch {
     return null;
   }
 }
-
